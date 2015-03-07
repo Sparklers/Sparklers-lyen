@@ -34,7 +34,10 @@ function getDistance(v0, a, t) {
 }
 
 function onSuccess(acceleration) {
-    acceleration.y -= 9.8;
+    acceleration.x = acceleration.x.toFixed(2);
+    acceleration.y = acceleration.y.toFixed(2) - 9.8;
+    acceleration.z = acceleration.z.toFixed(2);
+
     dx = getDistance(vfx, acceleration.x, freq/1000);
     dy = getDistance(vfy, acceleration.y, freq/1000);
     dz = getDistance(vfz, acceleration.z, freq/1000);
@@ -69,7 +72,6 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
-        alert('bindEvents');
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
     // deviceready Event Handler
@@ -77,8 +79,7 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        alert('onDeviceReady');
-        app.receivedEvent('deviceready');
+         app.receivedEvent('deviceready');
         var options = { frequency: freq };
         shapeArray.push([x, y, z]);
         var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
