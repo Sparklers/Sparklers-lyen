@@ -34,7 +34,7 @@ function getDistance(v0, a, t) {
 }
 
 function onSuccess(acceleration) {
-
+    acceleration.y -= 9.8;
     dx = getDistance(vfx, acceleration.x, freq);
     dy = getDistance(vfy, acceleration.y, freq);
     dz = getDistance(vfz, acceleration.z, freq);
