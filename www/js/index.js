@@ -35,13 +35,13 @@ function getDistance(v0, a, t) {
 
 function onSuccess(acceleration) {
     acceleration.y -= 9.8;
-    dx = getDistance(vfx, acceleration.x, freq);
-    dy = getDistance(vfy, acceleration.y, freq);
-    dz = getDistance(vfz, acceleration.z, freq);
+    dx = getDistance(vfx, acceleration.x, freq/1000);
+    dy = getDistance(vfy, acceleration.y, freq/1000);
+    dz = getDistance(vfz, acceleration.z, freq/1000);
 
-    vfx = acceleration.x * freq;
-    vfy = acceleration.y * freq;
-    vfz = acceleration.z * freq;
+    vfx = acceleration.x * freq/1000;
+    vfy = acceleration.y * freq/1000;
+    vfz = acceleration.z * freq/1000;
 
     document.getElementById('accelerationX').innerHTML = acceleration.x;
     document.getElementById('accelerationY').innerHTML = acceleration.y;
