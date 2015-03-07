@@ -25,7 +25,12 @@
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
-        <title>Hello World</title>
+        <title>Sparlers</title>
+        <script>
+		function startWrite() {
+			window.location.assign("http://www.w3schools.com")
+		}
+	</script>
     </head>
     <body>
         <div class="app">
@@ -45,6 +50,7 @@
             <li>vfx: <span id="velocityX"></span>g</li>
             <li>vfy: <span id="velocityY"></span>g</li>
             <li>vfz: <span id="velocityZ"></span>g</li>
+            <input type="button" value="start" onclick="startWrite()"></input>
         </ul>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
