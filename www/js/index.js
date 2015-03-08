@@ -36,9 +36,10 @@ function getDistance(v0, a, t) {
 }
 
 function onSuccess(acceleration) {
-    acceleration.x = acceleration.x.toFixed(2);
-    acceleration.y = acceleration.y.toFixed(2) - 9.8;
-    acceleration.z = acceleration.z.toFixed(2);
+    alert('onSuccess');
+    acceleration.x = acceleration.x;
+    acceleration.y = acceleration.y - 9.8;
+    acceleration.z = acceleration.z;
 
     dx = getDistance(vfx, acceleration.x, freq/1000);
     dy = getDistance(vfy, acceleration.y, freq/1000);
@@ -48,15 +49,15 @@ function onSuccess(acceleration) {
     vfy = acceleration.y * freq/1000;
     vfz = acceleration.z * freq/1000;
 
-    document.getElementById('accelerationX').innerHTML = acceleration.x;
-    document.getElementById('accelerationY').innerHTML = acceleration.y;
-    document.getElementById('accelerationZ').innerHTML = acceleration.z;
-    document.getElementById('distanceX').innerHTML = dx;
-    document.getElementById('distanceY').innerHTML = dy;
-    document.getElementById('distanceZ').innerHTML = dz;
-    document.getElementById('velocityX').innerHTML = vfx;
-    document.getElementById('velocityY').innerHTML = vfy;
-    document.getElementById('velocityZ').innerHTML = vfz;
+    document.getElementById('accelerationX').innerHTML = acceleration.x.toFixed(2);
+    document.getElementById('accelerationY').innerHTML = acceleration.y.toFixed(2);
+    document.getElementById('accelerationZ').innerHTML = acceleration.z.toFixed(2);
+    document.getElementById('distanceX').innerHTML = dx.toFixed(2)*100;
+    document.getElementById('distanceY').innerHTML = dy.toFixed(2)*100;
+    document.getElementById('distanceZ').innerHTML = dz.toFixed(2)*100;
+    document.getElementById('velocityX').innerHTML = vfx.toFixed(2);
+    document.getElementById('velocityY').innerHTML = vfy.toFixed(2);
+    document.getElementById('velocityZ').innerHTML = vfz.toFixed(2);
     shapeArray[idx] = [];
     shapeArray[idx].push(x+dx, y+dy, z+dz);
     idx += 1;
@@ -83,10 +84,11 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-         app.receivedEvent('deviceready');
+        //alert('onDeviceReady');
+        app.receivedEvent('deviceready');
         var options = { frequency: freq };
         shapeArray.push([x, y, z]);
-        // var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+        var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {

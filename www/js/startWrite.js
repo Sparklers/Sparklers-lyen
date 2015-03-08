@@ -27,9 +27,22 @@ var vfx = 0;
 var vfy = 0;
 var vfz = 0;
 
-var freq = 100;
+var minX = 9999;
+var minY = 9999;
+var minZ = 9999;
+
+var freq = 50;
 
 var idx = 0;
+
+var PathData;
+
+function resetData() {
+    shapeArray = [];
+    idx = 0;
+    minX = 9999;
+    minY = 9999;
+}
 
 function getDistance(v0, a, t) {
     return v0*t + 0.5*a*t;
@@ -48,20 +61,16 @@ function onSuccess(acceleration) {
     vfy = acceleration.y * freq/1000;
     vfz = acceleration.z * freq/1000;
     //alert('dx' + dx);
-    /*
-    document.getElementById('accelerationX').innerHTML = acceleration.x;
-    document.getElementById('accelerationY').innerHTML = acceleration.y;
-    document.getElementById('accelerationZ').innerHTML = acceleration.z;
-    document.getElementById('distanceX').innerHTML = dx;
-    document.getElementById('distanceY').innerHTML = dy;
-    document.getElementById('distanceZ').innerHTML = dz;
-    document.getElementById('velocityX').innerHTML = vfx;
-    document.getElementById('velocityY').innerHTML = vfy;
-    document.getElementById('velocityZ').innerHTML = vfz;
-    */
+
     shapeArray[idx] = [];
-    shapeArray[idx].push(x+dx, y+dy, z+dz);
+    var tmpX = (x+dx)*500;
+    var tmpY = (y+dy)*500;
+    var tmpZ = (z+dz)*500;
+    shapeArray[idx].push(tmpX, tmpY, tmpZ);
     idx += 1;
+    if(tmpX < minX) { minX = tmpX; }
+    if(tmpY < minY) { minY = tmpY; }
+    if(tmpZ < minZ) { minZ = tmpZ; }
 };
 
 function onError() {
@@ -69,18 +78,25 @@ function onError() {
 };
 
 function submit() {
-    var data = new PathData();
-    data.set("X", 123.11);
-    
-    data.save(null, {
-    success: function(user) {
-        alert("資料上傳成功");
-    },
-    error: function(user, error) {
-    // Show the error message somewhere and let the user try again.
-        alert("Error: " + error.code + " " + error.message);
+    alert('shapeArray.length: ' + shapeArray.length);
+    for(var i = 0; i < shapeArray.length; i++) {
+        var data = new PathData();
+        xPos = (minX < 0) ? shapeArray[i][0]*1000 - minX : shapeArray[i][0]*1000;
+        yPos = (minY < 0) ? shapeArray[i][1]*1000 - minY : shapeArray[i][1]*1000;
+        data.set("X", xPos);
+        data.set("Y", yPos);
+        data.set("PointNo", i);
+        data.save(null, {
+            success: function(user) {
+                //alert("資料上傳成功");
+            },
+            error: function(user, error) {
+            // Show the error message somewhere and let the user try again.
+                alert("Error: " + error.code + " " + error.message);
+            }
+        });
     }
-    });
+    resetData();
 }
 
 function getData() {
@@ -108,21 +124,26 @@ function drawPath() {
     context.beginPath();
     context.moveTo(0, 0);
     //alert('shapeArray.length: ' + shapeArray.length);
-
+    //alert('minX: ' + minX);
+    var xPos;
+    var yPos;
     for(var i = 0; i < shapeArray.length; i++) {
+        xPos = (minX < 0) ? shapeArray[i][0] - minX : shapeArray[i][0];
+        yPos = (minY < 0) ? shapeArray[i][1] - minY : shapeArray[i][1];
         //alert('x: ' + shapeArray[i][0] + ', y: ' + shapeArray[i][1]);
-        context.lineTo(shapeArray[i][0]*1000, shapeArray[i][1]*1000); 
+        context.lineTo(xPos, yPos); 
     }
     context.stroke();
+    resetData();
 }
 
 var app = {
     // Application Constructor
     initialize: function() {
         this.bindEvents();
+        resetData();
         Parse.initialize("BktVGHGrlbewaB8zQYr2Ggb9czE6XVkodvyZTP9l", "mxf2wEBpjCXSAksg09BBiFcCfi6mPXHrzBxu4LX1");
-        var PathData = Parse.Object.extend("PathData");
-        
+        PathData = Parse.Object.extend("PathData");
     },
     // Bind Event Listeners
     //
