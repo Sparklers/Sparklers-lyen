@@ -17,7 +17,7 @@
  * under the License.
  */
 
-var shapeArray = [];
+var shapeArray = {};
 
 var x = 0;
 var y = 0;
@@ -28,6 +28,8 @@ var vfy = 0;
 var vfz = 0;
 
 var freq = 100;
+
+var idx = 0;
 
 function getDistance(v0, a, t) {
     return v0*t + 0.5*a*t;
@@ -55,7 +57,9 @@ function onSuccess(acceleration) {
     document.getElementById('velocityX').innerHTML = vfx;
     document.getElementById('velocityY').innerHTML = vfy;
     document.getElementById('velocityZ').innerHTML = vfz;
-    shapeArray.push(x+dx, y+dy, z+dz);
+    shapeArray[idx] = [];
+    shapeArray[idx].push(x+dx, y+dy, z+dz);
+    idx += 1;
 };
 
 function onError() {
@@ -82,7 +86,7 @@ var app = {
          app.receivedEvent('deviceready');
         var options = { frequency: freq };
         shapeArray.push([x, y, z]);
-        var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+        // var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {

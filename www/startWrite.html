@@ -24,54 +24,10 @@
         <meta name="msapplication-tap-highlight" content="no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <link rel="stylesheet" type="text/css" href="css/startWrite.css" />
         <title>Sparlers</title>
         <script src="http://www.parsecdn.com/js/parse-1.3.5.min.js"></script>
-	<script>
-		Parse.initialize("BktVGHGrlbewaB8zQYr2Ggb9czE6XVkodvyZTP9l", "mxf2wEBpjCXSAksg09BBiFcCfi6mPXHrzBxu4LX1");
-		var PathData = Parse.Object.extend("PathData");
-		function submit() {
-			var data = new PathData();
-			data.set("X", 123.11);
-			
-			data.save(null, {
-			success: function(user) {
-				alert("資料上傳成功");
-			},
-			error: function(user, error) {
-			// Show the error message somewhere and let the user try again.
-				alert("Error: " + error.code + " " + error.message);
-			}
-			});
-		}
-		
-		function getData() {
-			query = new Parse.Query(PathData);
-			query.equalTo("X", 123.11);
-			query.find({
-			success: function (results) {
-				console.log("Successfully retrieved " + results.length + " scores.");
-				// Do something with the returned Parse.Object values
-				for (var i = 0; i < results.length; i++) {
-				var object = results[i];
-				console.log(object.id + ' - ' + object.get('X'));
-				}
-			},
-			error: function (error) {
-				alert("Error: " + error.code + " " + error.message);
-			}
-			});
-		}
-		
-		function drawPath(PathData) {
-			var canvas = document.getElementById('myCanvas');
-			var context = canvas.getContext('2d');
-			context.beginPath();
-			context.moveTo(0, 0);
-			context.lineTo(80, 300);
-			context.stroke();
-		}
-	</script>
+        <script type="text/javascript" src="js/startWrite.js"></script>
     </head>
     <body>
         <div class="app">
@@ -79,9 +35,8 @@
 		<canvas id="myCanvas" width="80" height="300"></canvas>
 		<input type="button" value="送出" onclick="submit()"></input>
 		<input type="button" value="取得" onclick="getData()"></input>
-		<input type="button" value="畫圖" onclick="var data = new PathData();drawPath(data)"></input>
+		<input type="button" value="畫圖" onclick="drawPath()"></input>
         </div>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/startWrite.js"></script>
+        <script type="text/javascript" src="cordova.js"></script> 
     </body>
 </html>

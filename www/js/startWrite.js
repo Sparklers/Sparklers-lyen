@@ -17,23 +17,112 @@
  * under the License.
  */
  
+var shapeArray = [];
+
+var x = 0;
+var y = 0;
+var z = 0;
+
+var vfx = 0;
+var vfy = 0;
+var vfz = 0;
+
+var freq = 100;
+
+var idx = 0;
+
+function getDistance(v0, a, t) {
+    return v0*t + 0.5*a*t;
+}
+
 function onSuccess(acceleration) {
-    alert('Acceleration X: ' + acceleration.x + '\n' +
-          'Acceleration Y: ' + acceleration.y + '\n' +
-          'Acceleration Z: ' + acceleration.z + '\n' +
-          'Timestamp: '      + acceleration.timestamp + '\n');
+    acceleration.x = acceleration.x.toFixed(2);
+    acceleration.y = acceleration.y.toFixed(2) - 9.8;
+    acceleration.z = acceleration.z.toFixed(2);
+
+    dx = getDistance(vfx, acceleration.x, freq/1000);
+    dy = getDistance(vfy, acceleration.y, freq/1000);
+    dz = getDistance(vfz, acceleration.z, freq/1000);
+
+    vfx = acceleration.x * freq/1000;
+    vfy = acceleration.y * freq/1000;
+    vfz = acceleration.z * freq/1000;
+    //alert('dx' + dx);
+    /*
+    document.getElementById('accelerationX').innerHTML = acceleration.x;
+    document.getElementById('accelerationY').innerHTML = acceleration.y;
+    document.getElementById('accelerationZ').innerHTML = acceleration.z;
+    document.getElementById('distanceX').innerHTML = dx;
+    document.getElementById('distanceY').innerHTML = dy;
+    document.getElementById('distanceZ').innerHTML = dz;
+    document.getElementById('velocityX').innerHTML = vfx;
+    document.getElementById('velocityY').innerHTML = vfy;
+    document.getElementById('velocityZ').innerHTML = vfz;
+    */
+    shapeArray[idx] = [];
+    shapeArray[idx].push(x+dx, y+dy, z+dz);
+    idx += 1;
 };
 
 function onError() {
     alert('onError!');
 };
 
+function submit() {
+    var data = new PathData();
+    data.set("X", 123.11);
+    
+    data.save(null, {
+    success: function(user) {
+        alert("資料上傳成功");
+    },
+    error: function(user, error) {
+    // Show the error message somewhere and let the user try again.
+        alert("Error: " + error.code + " " + error.message);
+    }
+    });
+}
+
+function getData() {
+    query = new Parse.Query(PathData);
+    query.equalTo("X", 123.11);
+    query.find({
+    success: function (results) {
+        console.log("Successfully retrieved " + results.length + " scores.");
+        // Do something with the returned Parse.Object values
+        for (var i = 0; i < results.length; i++) {
+        var object = results[i];
+        console.log(object.id + ' - ' + object.get('X'));
+        }
+    },
+    error: function (error) {
+        alert("Error: " + error.code + " " + error.message);
+    }
+    });
+}
+
+function drawPath() {
+    //console.log('drawPath');
+    var canvas = document.getElementById('myCanvas');
+    var context = canvas.getContext('2d');
+    context.beginPath();
+    context.moveTo(0, 0);
+    //alert('shapeArray.length: ' + shapeArray.length);
+
+    for(var i = 0; i < shapeArray.length; i++) {
+        //alert('x: ' + shapeArray[i][0] + ', y: ' + shapeArray[i][1]);
+        context.lineTo(shapeArray[i][0]*1000, shapeArray[i][1]*1000); 
+    }
+    context.stroke();
+}
+
 var app = {
     // Application Constructor
     initialize: function() {
-	
-	
         this.bindEvents();
+        Parse.initialize("BktVGHGrlbewaB8zQYr2Ggb9czE6XVkodvyZTP9l", "mxf2wEBpjCXSAksg09BBiFcCfi6mPXHrzBxu4LX1");
+        var PathData = Parse.Object.extend("PathData");
+        
     },
     // Bind Event Listeners
     //
@@ -47,14 +136,10 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-	alert('Acceleration X: ');
-	var options = { frequency: 3000 };  // Update every 3 seconds
-	var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-	
-	
-
-        console.log(navigator.accelerometer);
-	app.receivedEvent('deviceready');
+        shapeArray.push([x, y, z]);
+    	var options = { frequency: freq };
+    	var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+    	app.receivedEvent('deviceready');
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
