@@ -31,11 +31,16 @@ var minX = 9999;
 var minY = 9999;
 var minZ = 9999;
 
-var freq = 50;
+var xPos;
+var yPos;
+
+var freq = 1000;
 
 var idx = 0;
 
 var PathData;
+
+var watchID = null;
 
 function resetData() {
     shapeArray = [];
@@ -45,44 +50,57 @@ function resetData() {
 }
 
 function getDistance(v0, a, t) {
-    return v0*t + 0.5*a*t;
+    return v0*t + 0.5*a*t*t;
 }
 
 function onSuccess(acceleration) {
-    acceleration.x = acceleration.x.toFixed(2);
-    acceleration.y = acceleration.y.toFixed(2) - 9.8;
-    acceleration.z = acceleration.z.toFixed(2);
-
-    dx = getDistance(vfx, acceleration.x, freq/1000);
-    dy = getDistance(vfy, acceleration.y, freq/1000);
-    dz = getDistance(vfz, acceleration.z, freq/1000);
-
+    acceleration.y -= 9.78033;
+    alert('acceleration.y: ' + acceleration.y);
+    /*acceleration.x = acceleration.x;
+    acceleration.y = acceleration.y;
+    acceleration.z = acceleration.z;
+    */
+    //alert('acceleration.y: ' + acceleration.y);
+    dx = getDistance(vfx, acceleration.x, freq/1000)*100;
+    dy = getDistance(vfy, acceleration.y, freq/1000)*100;
+    dz = getDistance(vfz, acceleration.z, freq/1000)*100;
+    alert('vfy: ' + vfy + ', acceleration.y: ' + acceleration.y +', dy: ' + dy + ', freq: ' + freq);
+    //alert('dx: ' + dx);
+    //alert('dy: ' + dy);
     vfx = acceleration.x * freq/1000;
     vfy = acceleration.y * freq/1000;
     vfz = acceleration.z * freq/1000;
+    alert('vfy: ' + vfy);
     //alert('dx' + dx);
 
     shapeArray[idx] = [];
-    var tmpX = (x+dx)*500;
-    var tmpY = (y+dy)*500;
-    var tmpZ = (z+dz)*500;
-    shapeArray[idx].push(tmpX, tmpY, tmpZ);
+    //alert('x: ' + x);
+    x += dx;
+    y += dy;
+    z += dz;
+    alert('y: ' + y);
+    shapeArray[idx].push(x, y, z);
     idx += 1;
-    if(tmpX < minX) { minX = tmpX; }
-    if(tmpY < minY) { minY = tmpY; }
-    if(tmpZ < minZ) { minZ = tmpZ; }
+    if(x < minX) { minX = x; }
+    if(y < minY) { minY = y; }
+    if(z < minZ) { minZ = z; }
 };
 
 function onError() {
     alert('onError!');
 };
 
+function shift(i) {
+    xPos = (minX < 0) ? shapeArray[i][0] - minX : shapeArray[i][0];
+    yPos = (minY < 0) ? shapeArray[i][1] - minY : shapeArray[i][1];
+}
+
 function submit() {
     alert('shapeArray.length: ' + shapeArray.length);
+    navigator.accelerometer.clearWatch(watchID);
     for(var i = 0; i < shapeArray.length; i++) {
         var data = new PathData();
-        xPos = (minX < 0) ? shapeArray[i][0]*1000 - minX : shapeArray[i][0]*1000;
-        yPos = (minY < 0) ? shapeArray[i][1]*1000 - minY : shapeArray[i][1]*1000;
+        shift(i);
         data.set("X", xPos);
         data.set("Y", yPos);
         data.set("PointNo", i);
@@ -97,6 +115,7 @@ function submit() {
         });
     }
     resetData();
+    watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, { frequency: freq });
 }
 
 function getData() {
@@ -118,6 +137,7 @@ function getData() {
 }
 
 function drawPath() {
+    navigator.accelerometer.clearWatch(watchID);
     //console.log('drawPath');
     var canvas = document.getElementById('myCanvas');
     var context = canvas.getContext('2d');
@@ -125,24 +145,23 @@ function drawPath() {
     context.moveTo(0, 0);
     //alert('shapeArray.length: ' + shapeArray.length);
     //alert('minX: ' + minX);
-    var xPos;
-    var yPos;
+    alert('minY: ' + minY);
     for(var i = 0; i < shapeArray.length; i++) {
-        xPos = (minX < 0) ? shapeArray[i][0] - minX : shapeArray[i][0];
-        yPos = (minY < 0) ? shapeArray[i][1] - minY : shapeArray[i][1];
+        shift(i);
         //alert('x: ' + shapeArray[i][0] + ', y: ' + shapeArray[i][1]);
         context.lineTo(xPos, yPos); 
     }
     context.stroke();
     resetData();
+    watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, { frequency: freq });
 }
 
 var app = {
     // Application Constructor
     initialize: function() {
         this.bindEvents();
-        resetData();
-        Parse.initialize("BktVGHGrlbewaB8zQYr2Ggb9czE6XVkodvyZTP9l", "mxf2wEBpjCXSAksg09BBiFcCfi6mPXHrzBxu4LX1");
+        resetData(); 
+        Parse.initialize("9b1AwyoVsJSQv6BIUA1uCaBwANOgeLsNUzX7E1EK", "pBqINr4gwtazs1NEavZmKkpqWeoKC2nnjK1Xiy7u");
         PathData = Parse.Object.extend("PathData");
     },
     // Bind Event Listeners
@@ -159,7 +178,7 @@ var app = {
     onDeviceReady: function() {
         shapeArray.push([x, y, z]);
     	var options = { frequency: freq };
-    	var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+    	watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
     	app.receivedEvent('deviceready');
     },
     // Update DOM on a Received Event

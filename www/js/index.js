@@ -36,7 +36,7 @@ function getDistance(v0, a, t) {
 }
 
 function onSuccess(acceleration) {
-    alert('onSuccess');
+    // alert('onSuccess');
     acceleration.x = acceleration.x;
     acceleration.y = acceleration.y - 9.8;
     acceleration.z = acceleration.z;
